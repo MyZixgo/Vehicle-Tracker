@@ -499,6 +499,21 @@
             }
         }
 
+        // Disable ปุ่มบันทึก ถ้ายังไม่มีรูปเลย
+        function checkImageRequired() {
+            const tax = document.getElementById("taxImage").files.length;
+            const license = document.getElementById("licenseImage").files.length;
+            const btn = document.querySelector(".btn-save");
+
+            if (tax === 0 && license === 0) {
+                btn.disabled = true;
+                btn.style.opacity = 0.5;
+            } else {
+                btn.disabled = false;
+                btn.style.opacity = 1;
+            }
+        }
+
         // get liff ID line
         let lineUserId = "";
         async function initLIFF() {
@@ -525,6 +540,21 @@
             document.body.classList.add("loading");
             // ===== CONFIG =====
             const FLOW_URL = "https://defaultd9cd485e39bd4cc995398c97631fbb.71.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/bb94e9e37ad1484ba00bd24d07531f92/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=VdaQQR1gv2YVp_YdTahAc5z6M5iFO5WjYHpoT9HjO1g"; // 🔥 ใส่ Flow URL
+
+            if (!lineUserId) {
+                alert("❌ ยังไม่ได้รับ LINE userId กรุณาเปิดผ่าน LINE");
+                return;
+            }
+
+            const taxFileRaw = document.getElementById("taxImage").files[0];
+            const licenseFileRaw = document.getElementById("licenseImage").files[0];
+
+            // ✅ validation รูป
+            if (!taxFileRaw || !licenseFileRaw) {
+                alert("❌ กรุณาแนบรูปภาษีรถ และ ใบขับขี่ ให้ครบ");
+                document.body.classList.remove("loading");
+                return;
+            }
 
             // ===== Helper: resize image =====
             function resizeImage(file, maxWidth = 800) {
@@ -678,9 +708,13 @@
             initLIFF();
             updateStatus("inspectionDate", "inspectionStatus", "ภาษี");
             updateStatus("licenseExpireDate", "licenseStatus", "ใบขับขี่");
+            checkImageRequired();
         };
+
         // ===== Initialize =====
         populateProvinces();
+        document.getElementById("taxImage").addEventListener("change", checkImageRequired);
+        document.getElementById("licenseImage").addEventListener("change", checkImageRequired);
 
     </script>
 </body>
