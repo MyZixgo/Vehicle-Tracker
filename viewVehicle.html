@@ -2,174 +2,201 @@
 <html lang="th">
 
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ดูสถานะ</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ดูสถานะ</title>
 
-<style>
-body {
-    font-family: Arial;
-    background: #eaeaea;
-    padding: 10px;
-}
+    <style>
+        body {
+            font-family: Arial;
+            background: #eaeaea;
+            padding: 10px;
+        }
 
-.container {
-    max-width: 480px;
-    margin: auto;
-    background: #fff;
-    border: 1px solid #999;
-    padding: 12px;
-}
+        .container {
+            max-width: 480px;
+            margin: auto;
+            background: #fff;
+            border: 1px solid #999;
+            padding: 12px;
+        }
 
-.header {
-    background: #1f9bcf;
-    text-align: center;
-    font-weight: bold;
-    padding: 10px;
-    border: 1px solid #666;
-    margin-bottom: 10px;
-}
+        .header {
+            background: #1f9bcf;
+            text-align: center;
+            font-weight: bold;
+            padding: 10px;
+            border: 1px solid #666;
+            margin-bottom: 10px;
+        }
 
-.summary {
-    background: #e67e22;
-    text-align: center;
-    font-weight: bold;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #999;
-}
+        .summary {
+            background: #e67e22;
+            text-align: center;
+            font-weight: bold;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #999;
+        }
 
-.section-title {
-    font-weight: bold;
-    margin-top: 10px;
-}
+        .section-title {
+            font-weight: bold;
+            margin-top: 10px;
+        }
 
-.box {
-    border: 1px solid #999;
-    padding: 8px;
-    margin-bottom: 5px;
-    background: #f8f8f8;
-}
+        .box {
+            border: 1px solid #999;
+            padding: 8px;
+            margin-bottom: 5px;
+            background: #f8f8f8;
+        }
 
-.inner-box {
-    border: 1px solid #ccc;
-    padding: 6px;
-    margin-bottom: 4px;
-    background: #fafafa;
-}
+        .inner-box {
+            border: 1px solid #ccc;
+            padding: 6px;
+            margin-bottom: 4px;
+            background: #fafafa;
+        }
 
-.status {
-    padding: 8px;
-    text-align: center;
-    font-weight: bold;
-    color: #fff;
-}
+        .status {
+            padding: 8px;
+            text-align: center;
+            font-weight: bold;
+            color: #fff;
+        }
 
-.green { background: #4CAF50; }
-.red { background: #f44336; }
+        .green {
+            background: #4CAF50;
+        }
 
-</style>
+        .red {
+            background: #f44336;
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="container">
-    <div class="header">ดูสถานะ</div>
+    <div class="container">
+        <div class="header">ดูสถานะ</div>
 
-    <div id="loading">⏳ กำลังโหลดข้อมูล...</div>
-    <div id="result"></div>
-</div>
+        <div id="loading">⏳ กำลังโหลดข้อมูล...</div>
+        <div id="result"></div>
+    </div>
 
-<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
-<script>
+    <script>
 
-let lineUserId = "";
+        let lineUserId = "";
 
-// ✅ INIT LIFF
-async function initLIFF() {
-    await liff.init({ liffId: "2010252840-W9xfHpkL" });
+        // ✅ INIT LIFF
+        async function initLIFF() {
+            await liff.init({ liffId: "2010252840-W9xfHpkL" });
 
-    if (!liff.isLoggedIn()) {
-        liff.login();
-        return;
-    }
+            if (!liff.isLoggedIn()) {
+                liff.login();
+                return;
+            }
 
-    lineUserId = liff.getContext().userId;
+            lineUserId = liff.getContext().userId;
 
-    console.log("LINE:", lineUserId);
+            console.log("LINE:", lineUserId);
 
-    loadData();
-}
-
-// ✅ STATUS
-function calcStatus(dateStr) {
-
-    if (!dateStr) return { text: "ไม่มีข้อมูล", class: "" };
-
-    const today = new Date();
-    const expire = new Date(dateStr);
-
-    today.setHours(0,0,0,0);
-    expire.setHours(0,0,0,0);
-
-    const diff = Math.ceil((expire - today)/(1000*60*60*24));
-
-    if (diff < 0) {
-        return { text: "หมดอายุแล้ว " + Math.abs(diff) + " วัน ❌", class: "red" };
-    } else if (diff <= 30) {
-        return { text: "ใกล้หมดอายุ " + diff + " วัน ⚠️", class: "red" };
-    } else {
-        return { text: "ปกติ " + diff + " วัน ✅", class: "green" };
-    }
-}
-
-// ✅ LOAD DATA
-async function loadData() {
-
-    const FLOW_URL = "https://defaultd9cd485e39bd4cc995398c97631fbb.71.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/e956bcde13174c05af2135ecb803afb0/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=LhaHiFXFK4DELoAH-b_uS2rHw28czoPo-BCElqc-LLo";
-
-    try {
-
-        const res = await fetch(FLOW_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                lineUserId: lineUserId
-            })
-        });
-
-        const response = await res.json();
-
-        console.log("FLOW RESPONSE:", response);
-
-        const list = (response && response.items) ? response.items : [];
-
-        document.getElementById("loading").style.display = "none";
-
-        if (list.length === 0) {
-            document.getElementById("result").innerHTML =
-                "<div class='box'>❌ ไม่พบข้อมูลการลงทะเบียน</div>";
-            return;
+            loadData();
         }
 
-        let html = "";
+        // ✅ STATUS
+        function calcStatus(dateStr) {
 
-        // ✅ SUMMARY
-        html += `
+            if (!dateStr) return { text: "ไม่มีข้อมูล", class: "" };
+
+            const today = new Date();
+            const expire = new Date(dateStr);
+
+            today.setHours(0, 0, 0, 0);
+            expire.setHours(0, 0, 0, 0);
+
+            const diff = Math.ceil((expire - today) / (1000 * 60 * 60 * 24));
+
+            if (diff < 0) {
+                return { text: "หมดอายุแล้ว " + Math.abs(diff) + " วัน ❌", class: "red" };
+            } else if (diff <= 30) {
+                return { text: "ใกล้หมดอายุ " + diff + " วัน ⚠️", class: "red" };
+            } else {
+                return { text: "ปกติ " + diff + " วัน ✅", class: "green" };
+            }
+        }
+
+        // function mask ทะเบียนรถ 
+        function maskPlate(plate) {
+            if (!plate) return "-";
+
+            // แยก prefix กับเลข
+            const match = plate.match(/^([^\d]*)(\d+)$/);
+
+            if (!match) return plate;
+
+            const prefix = match[1]; // กต
+            const number = match[2]; // 5678
+
+            if (number.length <= 2) {
+                return prefix + number;
+            }
+
+            // เอา 2 ตัวแรก + replace ที่เหลือด้วย xx
+            const visible = number.substring(0, 2);
+            const masked = "xx";
+
+            return prefix + visible + masked;
+        }
+
+        // ✅ LOAD DATA
+        async function loadData() {
+
+            const FLOW_URL = "https://defaultd9cd485e39bd4cc995398c97631fbb.71.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/e956bcde13174c05af2135ecb803afb0/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=LhaHiFXFK4DELoAH-b_uS2rHw28czoPo-BCElqc-LLo";
+
+            try {
+
+                const res = await fetch(FLOW_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        lineUserId: lineUserId
+                    })
+                });
+
+                const response = await res.json();
+
+                console.log("FLOW RESPONSE:", response);
+
+                const list = (response && response.items) ? response.items : [];
+
+                document.getElementById("loading").style.display = "none";
+
+                if (list.length === 0) {
+                    document.getElementById("result").innerHTML =
+                        "<div class='box'>❌ ไม่พบข้อมูลการลงทะเบียน</div>";
+                    return;
+                }
+
+                let html = "";
+
+                // ✅ SUMMARY
+                html += `
             <div class="summary">
                 🚗 จำนวนรถที่ลงทะเบียน: ${list.length} คัน
             </div>
         `;
 
-        list.forEach((d, index) => {
+                list.forEach((d, index) => {
 
-            const ins = calcStatus(d.inspectionDate);
-            const lic = calcStatus(d.licenseExpireDate);
+                    const ins = calcStatus(d.inspectionDate);
+                    const lic = calcStatus(d.licenseExpireDate);
 
-            html += `
+                    html += `
                 <div class="box">
 
                     <div class="section-title">${d.carOrder || "ข้อมูลรถ"}</div>
@@ -179,7 +206,8 @@ async function loadData() {
                     <div class="inner-box">ยี่ห้อ: ${d.brand || "-"}</div>
                     <div class="inner-box">รุ่น: ${d.model || "-"}</div>
                     <div class="inner-box">สี: ${d.carColor || "-"}</div>
-                    <div class="inner-box">ทะเบียน: ${d.plateNo || "-"}</div>
+                    
+                    <div class="inner-box">ทะเบียน: ${maskPlate(d.plateNo)}</div>
                     <div class="inner-box">จังหวัด: ${d.province || "-"}</div>
 
                     <div class="section-title">ข้อมูลใบอนุญาต</div>
@@ -202,20 +230,21 @@ async function loadData() {
 
                 <hr style="margin:10px 0; border:none; border-top:1px dashed #aaa;">
             `;
-        });
+                });
 
-        document.getElementById("result").innerHTML = html;
+                document.getElementById("result").innerHTML = html;
 
-    } catch (err) {
-        console.error(err);
-        alert("❌ โหลดข้อมูลไม่สำเร็จ");
-    }
-}
+            } catch (err) {
+                console.error(err);
+                alert("❌ โหลดข้อมูลไม่สำเร็จ");
+            }
+        }
 
-// START
-initLIFF();
+        // START
+        initLIFF();
 
-</script>
+    </script>
 
 </body>
+
 </html>
