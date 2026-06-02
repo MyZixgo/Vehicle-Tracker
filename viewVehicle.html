@@ -2,160 +2,172 @@
 <html lang="th">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ดูสถานะ</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ดูสถานะ</title>
 
-    <style>
-        body {
-            font-family: Arial;
-            background: #eaeaea;
-            padding: 10px;
-        }
+<style>
+body {
+    font-family: Arial;
+    background: #eaeaea;
+    padding: 10px;
+}
 
-        .container {
-            max-width: 480px;
-            margin: auto;
-            background: #fff;
-            border: 1px solid #999;
-            padding: 12px;
-        }
+.container {
+    max-width: 480px;
+    margin: auto;
+    background: #fff;
+    border: 1px solid #999;
+    padding: 12px;
+}
 
-        .header {
-            background: #1f9bcf;
-            text-align: center;
-            font-weight: bold;
-            padding: 10px;
-            border: 1px solid #666;
-            margin-bottom: 10px;
-        }
+.header {
+    background: #1f9bcf;
+    text-align: center;
+    font-weight: bold;
+    padding: 10px;
+    border: 1px solid #666;
+    margin-bottom: 10px;
+}
 
-        .section-title {
-            font-weight: bold;
-            margin-top: 10px;
-        }
+.section-title {
+    font-weight: bold;
+    margin-top: 10px;
+}
 
-        .box {
-            border: 1px solid #999;
-            padding: 8px;
-            margin-bottom: 5px;
-            background: #f8f8f8;
-        }
+.box {
+    border: 1px solid #999;
+    padding: 8px;
+    margin-bottom: 5px;
+    background: #f8f8f8;
+}
 
-        .status {
-            padding: 8px;
-            text-align: center;
-            font-weight: bold;
-            color: #fff;
-        }
+/* ✅ summary box */
+.summary {
+    background: #e67e22;
+    text-align: center;
+    font-weight: bold;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #999;
+}
 
-        .green {
-            background: #4CAF50;
-        }
+.status {
+    padding: 8px;
+    text-align: center;
+    font-weight: bold;
+    color: #fff;
+}
 
-        .red {
-            background: #f44336;
-        }
-    </style>
+.green { background: #4CAF50; }
+.red { background: #f44336; }
+
+</style>
 
 </head>
 
 <body>
 
-    <div class="container">
-        <div class="header">ดูสถานะ</div>
+<div class="container">
+    <div class="header">ดูสถานะ</div>
 
-        <div id="loading">⏳ กำลังโหลดข้อมูล...</div>
-        <div id="result"></div>
-    </div>
+    <div id="loading">⏳ กำลังโหลดข้อมูล...</div>
+    <div id="result"></div>
+</div>
 
-    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
-    <script>
+<script>
 
-        let lineUserId = "";
+let lineUserId = "";
 
-        // ✅ INIT LIFF
-        async function initLIFF() {
-            await liff.init({ liffId: "2010252840-W9xfHpkL" });
+// ✅ INIT LIFF
+async function initLIFF() {
+    await liff.init({ liffId: "2010252840-W9xfHpkL" });
 
-            if (!liff.isLoggedIn()) {
-                liff.login();
-                return;
-            }
+    if (!liff.isLoggedIn()) {
+        liff.login();
+        return;
+    }
 
-            lineUserId = liff.getContext().userId;
+    lineUserId = liff.getContext().userId;
 
-            console.log("LINE:", lineUserId);
+    console.log("LINE:", lineUserId);
 
-            loadData(); // ✅ AUTO
+    loadData();
+}
+
+// ✅ STATUS
+function calcStatus(dateStr) {
+
+    if (!dateStr) return { text: "ไม่มีข้อมูล", class: "" };
+
+    const today = new Date();
+    const expire = new Date(dateStr);
+
+    today.setHours(0,0,0,0);
+    expire.setHours(0,0,0,0);
+
+    const diff = Math.ceil((expire - today)/(1000*60*60*24));
+
+    if (diff < 0) {
+        return { text: "หมดอายุแล้ว " + Math.abs(diff) + " วัน ❌", class: "red" };
+    } else if (diff <= 30) {
+        return { text: "ใกล้หมดอายุ " + diff + " วัน ⚠️", class: "red" };
+    } else {
+        return { text: "ปกติ " + diff + " วัน ✅", class: "green" };
+    }
+}
+
+// ✅ LOAD DATA
+async function loadData() {
+
+    const FLOW_URL = "https://defaultd9cd485e39bd4cc995398c97631fbb.71.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/e956bcde13174c05af2135ecb803afb0/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=LhaHiFXFK4DELoAH-b_uS2rHw28czoPo-BCElqc-LLo";
+
+    try {
+
+        const res = await fetch(FLOW_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                lineUserId: lineUserId
+            })
+        });
+
+        const response = await res.json();
+
+        console.log("FLOW RESPONSE:", response);
+
+        const list = response.items || [];
+
+        document.getElementById("loading").style.display = "none";
+
+        if (list.length === 0) {
+            document.getElementById("result").innerHTML =
+                "<div class='box'>❌ ไม่พบข้อมูลการลงทะเบียน</div>";
+            return;
         }
 
-        // ✅ STATUS
-        function calcStatus(dateStr) {
+        let html = "";
 
-            if (!dateStr) return { text: "ไม่มีข้อมูล", class: "" };
+        // ✅ ✅ Summary ด้านบน
+        html += `
+            <div class="summary">
+                🚗 คุณมีรถทั้งหมด ${list.length} คัน
+            </div>
+        `;
 
-            const today = new Date();
-            const expire = new Date(dateStr);
+        list.forEach((d) => {
 
-            today.setHours(0, 0, 0, 0);
-            expire.setHours(0, 0, 0, 0);
+            const ins = calcStatus(d.inspectionDate);
+            const lic = calcStatus(d.licenseExpireDate);
 
-            const diff = Math.ceil((expire - today) / (1000 * 60 * 60 * 24));
-
-            if (diff < 0) {
-                return { text: "หมดอายุแล้ว " + Math.abs(diff) + " วัน ❌", class: "red" };
-            } else if (diff <= 30) {
-                return { text: "ใกล้หมดอายุ " + diff + " วัน ⚠️", class: "red" };
-            } else {
-                return { text: "ปกติ " + diff + " วัน ✅", class: "green" };
-            }
-        }
-
-        // ✅ LOAD DATA
-        async function loadData() {
-
-            const FLOW_URL = "https://defaultd9cd485e39bd4cc995398c97631fbb.71.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/e956bcde13174c05af2135ecb803afb0/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=LhaHiFXFK4DELoAH-b_uS2rHw28czoPo-BCElqc-LLo";
-
-            try {
-
-                const res = await fetch(FLOW_URL, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        lineUserId: lineUserId
-                    })
-                });
-
-                const response = await res.json();
-
-                console.log("FLOW RESPONSE:", response);
-
-                const list = response.items || [];
-
-                document.getElementById("loading").style.display = "none";
-
-                if (list.length === 0) {
-                    document.getElementById("result").innerHTML =
-                        "<div class='box'>❌ ไม่พบข้อมูล</div>";
-                    return;
-                }
-
-                let html = "";
-
-                list.forEach((d, index) => {
-
-                    const ins = calcStatus(d.inspectionDate);
-                    const lic = calcStatus(d.licenseExpireDate);
-
-                    html += `
+            html += `
                 <div class="box">
 
-                    <div class="section-title">รถคันที่ ${index + 1}</div>
-                    <div class="box">${d.carOrder || "-"}</div>
+                    <div class="section-title">${d.carOrder || "ข้อมูลรถ"}</div>
 
                     <div class="section-title">รายละเอียดรถ</div>
                     <div class="box">ประเภท: ${d.vehicleType || "-"}</div>
@@ -183,20 +195,20 @@
 
                 </div>
             `;
-                });
+        });
 
-                document.getElementById("result").innerHTML = html;
+        document.getElementById("result").innerHTML = html;
 
-            } catch (err) {
-                console.error(err);
-                alert("❌ โหลดข้อมูลไม่สำเร็จ");
-            }
-        }
+    } catch (err) {
+        console.error(err);
+        alert("❌ โหลดข้อมูลไม่สำเร็จ");
+    }
+}
 
-        // START
-        initLIFF();
+// START
+initLIFF();
 
-    </script>
+</script>
 
 </body>
 
