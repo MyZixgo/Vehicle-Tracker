@@ -132,21 +132,16 @@
         function maskPlate(plate) {
             if (!plate) return "-";
 
-            const match = plate.match(/^([^\d]*)(\d+)$/);
-            if (!match) return plate;
+            // แปลงเป็น string กัน error
+            const str = plate.toString();
 
-            const prefix = match[1]; // ตัวอักษร
-            const number = match[2]; // ตัวเลข
+            // ถ้าสั้นเกิน 2 ตัว ไม่ต้อง mask
+            if (str.length <= 2) return str;
 
-            if (number.length <= 2) {
-                return prefix + number;
-            }
+            // เอาทั้งหมด ยกเว้น 2 ตัวท้าย
+            const visible = str.substring(0, str.length - 2);
 
-            // ✅ เอาเลข 2 ตัวแรก
-            const visible = number.substring(0, 2);
-
-            // ✅ ต่อด้วย xx (fix 2 ตัว)
-            return prefix + visible + "xx";
+            return visible + "xx";
         }
 
         // ✅ mask เบอร์โทร
