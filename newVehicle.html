@@ -516,22 +516,24 @@
 
         // get liff ID line
         let lineUserId = "";
+
         async function initLIFF() {
             try {
-                await liff.init({ liffId: "2010252840-oCJZa5Dk" }); // 🔥 ใส่ LIFF ID ของคุณ
+                await liff.init({ liffId: "2010252840-oCJZa5Dk" });
 
                 if (!liff.isLoggedIn()) {
-                    liff.login();
+                    liff.login({ redirectUri: window.location.href });
                     return;
                 }
 
-                const profile = await liff.getProfile();
-                lineUserId = profile.userId;
+                const context = liff.getContext();
+                lineUserId = context.userId;
 
                 console.log("LINE userId:", lineUserId);
 
             } catch (err) {
                 console.error("LIFF error:", err);
+                alert("LIFF Error: " + err.message);
             }
         }
 
