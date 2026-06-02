@@ -625,6 +625,10 @@
 
                 // ===== DATA =====
                 const data = {
+                    
+                    // สถานะรายการใหม่
+                    dataStatus:"new",
+
                     empCode: empCode,
                     empName: empName,
                     phone: document.getElementById("phone").value,
@@ -680,13 +684,8 @@
                 alert("✅ บันทึกข้อมูลเรียบร้อย");
 
                 // ✅ Reset form
-                // document.querySelectorAll("input").forEach(i => i.value = "");
-                // document.querySelectorAll("select").forEach(s => s.selectedIndex = 0);
-                // document.getElementById("taxPreview").classList.add("hidden");
-                // document.getElementById("licensePreview").classList.add("hidden");
                 document.getElementById("taxImage").value = "";
                 document.getElementById("licenseImage").value = "";
-
                 vehicleTypeSelect.value = "";
                 brandSelect.innerHTML = '<option value="">-- เลือกประเภทรถก่อน --</option>';
                 brandSelect.disabled = true;
