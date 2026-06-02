@@ -24,6 +24,7 @@ body {
 /* HEADER */
 .header {
     background: #1f9bcf;
+    color: #000;
     text-align: center;
     font-weight: bold;
     padding: 10px;
@@ -31,15 +32,21 @@ body {
     margin-bottom: 10px;
 }
 
+/* LABEL */
+.section-title {
+    font-weight: bold;
+    margin-top: 10px;
+}
+
 /* BOX */
 .box {
     border: 1px solid #999;
     padding: 8px;
-    margin-bottom: 6px;
-    background: #f7f7f7;
+    margin-bottom: 5px;
+    background: #f8f8f8;
 }
 
-/* STATUS */
+/* STATUS BAR */
 .status {
     padding: 8px;
     text-align: center;
@@ -47,19 +54,28 @@ body {
     color: #fff;
 }
 
-.green { background: #4CAF50; }
-.red { background: #f44336; }
-
-/* TITLE */
-.title {
-    font-weight: bold;
-    margin-top: 10px;
+.green {
+    background: #4CAF50;
 }
 
-/* LOADING */
-.loading {
-    text-align: center;
-    padding: 20px;
+.red {
+    background: #f44336;
+}
+
+/* SEARCH */
+input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 5px;
+    border: 1px solid #999;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    font-weight: bold;
+    background: #e67e22;
+    border: none;
 }
 </style>
 </head>
@@ -70,9 +86,40 @@ body {
 
     <div class="header">ดูสถานะ</div>
 
-    <div id="loading" class="loading">⏳ กำลังโหลดข้อมูล...</div>
+    <!-- SEARCH -->
+    <input type="text" id="empCode" placeholder="รหัสพนักงาน">
+    <button onclick="searchData()">ค้นหา</button>
 
-    <div id="result"></div>
+    <div id="result" style="display:none;">
+
+        <!-- รถ -->
+        <div class="section-title">รถยนต์:</div>
+        <div class="box" id="carOrder"></div>
+
+        <!-- รายละเอียด -->
+        <div class="section-title">รายละเอียดรถ:</div>
+
+        <div class="box" id="vehicleType"></div>
+        <div class="box" id="brand"></div>
+        <div class="box" id="model"></div>
+        <div class="box" id="color"></div>
+        <div class="box" id="plate"></div>
+        <div class="box" id="province"></div>
+
+        <!-- ใบอนุญาต -->
+        <div class="section-title">ข้อมูลใบอนุญาต:</div>
+
+        <div class="box">
+            1. วันภาษีหมดอายุ
+            <div id="inspectionStatus" class="status"></div>
+        </div>
+
+        <div class="box">
+            2. วันใบขับขี่หมดอายุ
+            <div id="licenseStatus" class="status"></div>
+        </div>
+
+    </div>
 
 </div>
 
@@ -82,7 +129,7 @@ body {
 
 let lineUserId = "";
 
-// ✅ LIFF INIT
+// ✅ LIFF
 async function initLIFF() {
     await liff.init({ liffId: "2010252840-W9xfHpkL" });
 
@@ -92,13 +139,9 @@ async function initLIFF() {
     }
 
     lineUserId = liff.getContext().userId;
-
-    console.log("LINE:", lineUserId);
-
-    loadData(); // ✅ AUTO CALL
 }
 
-// ✅ STATUS
+// ✅ Status Logic
 function calcStatus(dateStr) {
 
     if (!dateStr) return { text: "ไม่มีข้อมูล", class: "" };
@@ -112,86 +155,86 @@ function calcStatus(dateStr) {
     const diff = Math.ceil((expire - today) / (1000*60*60*24));
 
     if (diff < 0) {
-        return { text: "หมดอายุแล้ว " + Math.abs(diff) + " วัน ❌", class: "red" };
+        return {
+            text: "หมดอายุแล้ว " + Math.abs(diff) + " วัน ❌",
+            class: "red"
+        };
     } else if (diff <= 30) {
-        return { text: "ใกล้หมดอายุ " + diff + " วัน ⚠️", class: "red" };
+        return {
+            text: "จะหมดอายุอีก " + diff + " วัน ⚠️",
+            class: "red"
+        };
     } else {
-        return { text: "ปกติ เหลือ " + diff + " วัน ✅", class: "green" };
+        return {
+            text: "ปกติ เหลือ " + diff + " วัน ✅",
+            class: "green"
+        };
     }
 }
 
-// ✅ LOAD DATA
-async function loadData() {
+// ✅ SEARCH
+async function searchData() {
 
-    const FLOW_URL = "https://defaultd9cd485e39bd4cc995398c97631fbb.71.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/e956bcde13174c05af2135ecb803afb0/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=LhaHiFXFK4DELoAH-b_uS2rHw28czoPo-BCElqc-LLo"; // ✅ YOUR FLOW
+    const empCode = document.getElementById("empCode").value;
+
+    if (!empCode) {
+        alert("กรุณากรอกรหัสพนักงาน");
+        return;
+    }
+
+    const FLOW_URL = "https://defaultd9cd485e39bd4cc995398c97631fbb.71.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/e956bcde13174c05af2135ecb803afb0/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=LhaHiFXFK4DELoAH-b_uS2rHw28czoPo-BCElqc-LLo"; // ✅ ใส่ Flow
 
     try {
 
         const res = await fetch(FLOW_URL, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json"
+            },
             body: JSON.stringify({
+                empCode: empCode,
                 lineUserId: lineUserId
             })
         });
 
         const data = await res.json();
 
-        document.getElementById("loading").style.display = "none";
-
         if (!data || data.length === 0) {
-            document.getElementById("result").innerHTML =
-                "<div class='box'>❌ ไม่พบข้อมูลการลงทะเบียน</div>";
+            alert("ไม่พบข้อมูล");
             return;
         }
 
-        // ✅ RENDER MULTI CAR
-        let html = "";
+        const d = data[0];
 
-        data.forEach((d, index) => {
+        document.getElementById("result").style.display = "block";
 
-            const ins = calcStatus(d.inspectionDate);
-            const lic = calcStatus(d.licenseExpireDate);
+        // ✅ car
+        document.getElementById("carOrder").innerText = d.carOrder;
 
-            html += `
-                <div class="box">
+        // ✅ vehicle
+        document.getElementById("vehicleType").innerText = "1. ประเภท: " + d.vehicleType;
+        document.getElementById("brand").innerText = "2. ยี่ห้อ: " + d.brand;
+        document.getElementById("model").innerText = "3. รุ่น: " + d.model;
+        document.getElementById("color").innerText = "4. สีรถ: " + d.carColor;
+        document.getElementById("plate").innerText = "5. ทะเบียน: " + d.plateNo;
+        document.getElementById("province").innerText = "6. จังหวัด: " + d.province;
 
-                    <div class="title">รถคันที่ ${index+1}</div>
+        // ✅ status
+        const ins = calcStatus(d.inspectionDate);
+        const lic = calcStatus(d.licenseExpireDate);
 
-                    <div class="box">${d.carOrder || "-"}</div>
+        const insEl = document.getElementById("inspectionStatus");
+        const licEl = document.getElementById("licenseStatus");
 
-                    <div class="box">1. ประเภท: ${d.vehicleType || "-"}</div>
-                    <div class="box">2. ยี่ห้อ: ${d.brand || "-"}</div>
-                    <div class="box">3. รุ่น: ${d.model || "-"}</div>
-                    <div class="box">4. สี: ${d.carColor || "-"}</div>
-                    <div class="box">5. ทะเบียน: ${d.plateNo || "-"}</div>
-                    <div class="box">6. จังหวัด: ${d.province || "-"}</div>
+        insEl.innerText = ins.text;
+        insEl.className = "status " + ins.class;
 
-                    <div class="title">ข้อมูลใบอนุญาต</div>
-
-                    <div class="box">
-                        ภาษี
-                        <div class="status ${ins.class}">
-                            ${ins.text}
-                        </div>
-                    </div>
-
-                    <div class="box">
-                        ใบขับขี่
-                        <div class="status ${lic.class}">
-                            ${lic.text}
-                        </div>
-                    </div>
-
-                </div>
-            `;
-        });
-
-        document.getElementById("result").innerHTML = html;
+        licEl.innerText = lic.text;
+        licEl.className = "status " + lic.class;
 
     } catch (err) {
         console.error(err);
-        alert("❌ โหลดข้อมูลไม่สำเร็จ");
+        alert("เกิดข้อผิดพลาด");
     }
 }
 
