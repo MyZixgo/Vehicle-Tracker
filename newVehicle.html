@@ -247,14 +247,16 @@
 
     </div>
 
-    <script>
+    <!-- Get line ID from LIFF  -->
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
+    <script>
         // ===== Master Data =====
         const vehicleData = {
             "รถยนต์": {
                 "Toyota": [
                     "Yaris ATIV", "Yaris Cross", "Corolla Altis", "Corolla Cross",
-                    "Camry", "Hilux Revo", "Hilux Champ", "Fortuner", "Innova Zenix",
+                    "Camry", "Hilux Revo", "Hilux Champ", "Vigo Champ", "Fortuner", "Innova Zenix",
                     "อื่นๆ"
                 ],
                 "Honda": [
@@ -497,11 +499,32 @@
             }
         }
 
+        // get liff ID line
+        let lineUserId = "";
+        async function initLIFF() {
+            try {
+                await liff.init({ liffId: "2010252840-oCJZa5Dk" }); // 🔥 ใส่ LIFF ID ของคุณ
+
+                if (!liff.isLoggedIn()) {
+                    liff.login();
+                    return;
+                }
+
+                const profile = await liff.getProfile();
+                lineUserId = profile.userId;
+
+                console.log("LINE userId:", lineUserId);
+
+            } catch (err) {
+                console.error("LIFF error:", err);
+            }
+        }
+
         // ===== Submit Demo =====
         async function submitForm() {
             document.body.classList.add("loading");
             // ===== CONFIG =====
-            const FLOW_URL = "xxxxx"; // 🔥 ใส่ Flow URL
+            const FLOW_URL = "https://defaultd9cd485e39bd4cc995398c97631fbb.71.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/bb94e9e37ad1484ba00bd24d07531f92/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=VdaQQR1gv2YVp_YdTahAc5z6M5iFO5WjYHpoT9HjO1g"; // 🔥 ใส่ Flow URL
 
             // ===== Helper: resize image =====
             function resizeImage(file, maxWidth = 800) {
@@ -573,6 +596,8 @@
                     empCode: empCode,
                     empName: empName,
                     phone: document.getElementById("phone").value,
+
+                    lineUserId: lineUserId,
 
                     carOrder: carOrder.value === "อื่นๆ"
                         ? document.getElementById("carOrderOther").value
@@ -650,6 +675,7 @@
         }
 
         window.onload = function () {
+            initLIFF();
             updateStatus("inspectionDate", "inspectionStatus", "ภาษี");
             updateStatus("licenseExpireDate", "licenseStatus", "ใบขับขี่");
         };
