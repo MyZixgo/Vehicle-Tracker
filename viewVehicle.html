@@ -30,6 +30,15 @@ body {
     margin-bottom: 10px;
 }
 
+.summary {
+    background: #e67e22;
+    text-align: center;
+    font-weight: bold;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #999;
+}
+
 .section-title {
     font-weight: bold;
     margin-top: 10px;
@@ -42,14 +51,11 @@ body {
     background: #f8f8f8;
 }
 
-/* ✅ summary box */
-.summary {
-    background: #e67e22;
-    text-align: center;
-    font-weight: bold;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #999;
+.inner-box {
+    border: 1px solid #ccc;
+    padding: 6px;
+    margin-bottom: 4px;
+    background: #fafafa;
 }
 
 .status {
@@ -63,7 +69,6 @@ body {
 .red { background: #f44336; }
 
 </style>
-
 </head>
 
 <body>
@@ -140,7 +145,7 @@ async function loadData() {
 
         console.log("FLOW RESPONSE:", response);
 
-        const list = response.items || [];
+        const list = (response && response.items) ? response.items : [];
 
         document.getElementById("loading").style.display = "none";
 
@@ -152,14 +157,14 @@ async function loadData() {
 
         let html = "";
 
-        // ✅ ✅ Summary ด้านบน
+        // ✅ SUMMARY
         html += `
             <div class="summary">
-                🚗 คุณมีรถทั้งหมด ${list.length} คัน
+                🚗 จำนวนรถที่ลงทะเบียน: ${list.length} คัน
             </div>
         `;
 
-        list.forEach((d) => {
+        list.forEach((d, index) => {
 
             const ins = calcStatus(d.inspectionDate);
             const lic = calcStatus(d.licenseExpireDate);
@@ -170,12 +175,12 @@ async function loadData() {
                     <div class="section-title">${d.carOrder || "ข้อมูลรถ"}</div>
 
                     <div class="section-title">รายละเอียดรถ</div>
-                    <div class="box">ประเภท: ${d.vehicleType || "-"}</div>
-                    <div class="box">ยี่ห้อ: ${d.brand || "-"}</div>
-                    <div class="box">รุ่น: ${d.model || "-"}</div>
-                    <div class="box">สี: ${d.carColor || "-"}</div>
-                    <div class="box">ทะเบียน: ${d.plateNo || "-"}</div>
-                    <div class="box">จังหวัด: ${d.province || "-"}</div>
+                    <div class="inner-box">ประเภท: ${d.vehicleType || "-"}</div>
+                    <div class="inner-box">ยี่ห้อ: ${d.brand || "-"}</div>
+                    <div class="inner-box">รุ่น: ${d.model || "-"}</div>
+                    <div class="inner-box">สี: ${d.carColor || "-"}</div>
+                    <div class="inner-box">ทะเบียน: ${d.plateNo || "-"}</div>
+                    <div class="inner-box">จังหวัด: ${d.province || "-"}</div>
 
                     <div class="section-title">ข้อมูลใบอนุญาต</div>
 
@@ -194,6 +199,8 @@ async function loadData() {
                     </div>
 
                 </div>
+
+                <hr style="margin:10px 0; border:none; border-top:1px dashed #aaa;">
             `;
         });
 
@@ -211,5 +218,4 @@ initLIFF();
 </script>
 
 </body>
-
 </html>
