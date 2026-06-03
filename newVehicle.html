@@ -154,15 +154,6 @@
         <div class="section-title">ข้อมูลรถ</div>
 
         <div class="form-group">
-            <label for="carOrder">ลำดับรถ</label>
-            <select id="carOrder">
-                <option value="">-- เลือก --</option>
-                <option value="คันที่ 1">คันที่ 1</option>
-                <option value="คันที่ 2">คันที่ 2</option>
-            </select>
-        </div>
-        
-        <div class="form-group">
             <label for="vehicleType">ประเภทรถ</label>
             <select id="vehicleType">
                 <option value="">-- เลือก --</option>
@@ -171,12 +162,19 @@
             </select>
         </div>
 
+        <div class="form-group">
+            <label for="carOrder">ลำดับรถ</label>
+            <select id="carOrder">
+                <option value="">-- เลือก --</option>
+                <option value="คันที่ 1">คันที่ 1</option>
+                <option value="คันที่ 2">คันที่ 2</option>
+            </select>
+        </div>
+
         <div class="form-group hidden" id="carOrderOtherGroup">
             <label for="carOrderOther">ระบุลำดับรถเพิ่มเติม</label>
             <input type="text" id="carOrderOther" placeholder="เช่น คันสำรอง / คันพ่วง" />
         </div>
-
-
 
         <div class="form-group">
             <label for="brand">ยี่ห้อ</label>
