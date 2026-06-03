@@ -306,7 +306,8 @@
 
             <div class="form-group">
                 <label>แนบรูปใบขับขี่</label>
-                <input type="file" id="licenseImage" accept="image/*" onchange="previewImage(event, 'licensePreview')" />
+                <input type="file" id="licenseImage" accept="image/*"
+                    onchange="previewImage(event, 'licensePreview')" />
                 <img id="licensePreview" class="preview-img" />
                 <div class="note">ถ้าไม่เปลี่ยนรูป ระบบจะใช้รูปเดิม (ถ้ามีข้อมูลเดิมอยู่)</div>
             </div>
@@ -793,6 +794,7 @@
             });
         }
 
+
         async function submitEdit() {
             document.body.classList.add("loading");
 
@@ -834,7 +836,7 @@
                 let taxBase64 = oldTaxImage || "";
                 let licenseBase64 = oldLicenseImage || "";
 
-                // ถ้ามีอัปโหลดใหม่ ให้ override
+                // ถ้ามีอัปโหลดใหม่ ให้ใช้รูปใหม่
                 if (taxFileRaw) {
                     const taxFile = await resizeImage(taxFileRaw);
                     taxBase64 = await toBase64(taxFile);
@@ -845,33 +847,24 @@
                     licenseBase64 = await toBase64(licenseFile);
                 }
 
-                // ถ้ายังไม่มีเลยทั้งของเก่าและของใหม่ ค่อยบังคับ
-                if (!taxBase64 || !licenseBase64) {
-                    alert("❌ กรุณาแนบรูปภาษีรถ และ ใบขับขี่ ให้ครบ");
-                    return;
-                }
-
                 const selectedData = loadedItems[selectedIndex] || {};
 
                 const data = {
-                    // 🔥 สำคัญ
                     dataStatus: "edit",
-
-                    // line
                     lineUserId: lineUserId,
 
-                    // คีย์สำหรับ Flow ใช้อัปเดทรายการเดิม
+                    // key สำหรับ update
                     recordId: document.getElementById("recordId").value,
                     originalPlateNo: document.getElementById("originalPlateNo").value,
                     originalCarOrder: document.getElementById("originalCarOrder").value,
                     originalEmpCode: document.getElementById("originalEmpCode").value,
 
-                    // เผื่อ flow รับชื่อ field อื่น
+                    // เผื่อ Flow ใช้ชื่อ field อื่น
                     id: selectedData.id || selectedData.ID || selectedData.itemId || selectedData.recordId || "",
                     oldPlateNo: selectedData.plateNo || "",
                     oldCarOrder: selectedData.carOrder || "",
 
-                    // data ปัจจุบัน
+                    // ข้อมูลปัจจุบัน
                     empCode: empCode,
                     empName: empName,
                     phone: document.getElementById("phone").value.trim(),
@@ -897,7 +890,7 @@
                     inspectionDate: document.getElementById("inspectionDate").value,
                     licenseExpireDate: document.getElementById("licenseExpireDate").value,
 
-                    // รูป
+                    // รูป (ไม่บังคับแล้ว)
                     taxImageBase64: taxBase64,
                     licenseImageBase64: licenseBase64
                 };
@@ -921,7 +914,7 @@
 
                 alert("✅ อัปเดทข้อมูลเรียบร้อย");
 
-                // reload list ใหม่หลังแก้ไข
+                // reload ใหม่
                 selectedIndex = -1;
                 document.getElementById("formSection").classList.add("hidden");
                 document.getElementById("vehicleList").innerHTML = "";
@@ -940,6 +933,8 @@
                 document.body.classList.remove("loading");
             }
         }
+
+
 
         // =========================================================
         // START
