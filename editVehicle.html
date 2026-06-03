@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>อัปเดทข้อมูล</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 10px;
+            background: #f2f2f2;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: auto;
+            background: #fff;
+            border: 1px solid #bdbdbd;
+            padding: 12px;
+        }
+
+        .header {
+            background: #f1f500;
+            color: #000;
+            text-align: center;
+            font-weight: bold;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #999;
+        }
+
+        .section-title {
+            background: #fff;
+            color: #2f75b5;
+            padding: 8px;
+            font-weight: bold;
+            border-bottom: 1px solid #1f4e79;
+            margin-top: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        input,
+        select,
+        textarea,
+        button {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #999;
+            font-size: 14px;
+            background: #fff;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 70px;
+        }
+
+        .status {
+            padding: 8px;
+            text-align: center;
+            font-weight: bold;
+            color: #fff;
+            margin: 8px 0;
+            font-size: 13px;
+        }
+
+        .green {
+            background: #4caf50;
+        }
+
+        .red {
+            background: #f44336;
+        }
+
+        .btn-save {
+            width: 100%;
+            background: #f1f500;
+            color: #000;
+            border: 1px solid #999;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 15px;
+            cursor: pointer;
+        }
+
+        .btn-save:hover {
+            opacity: 0.9;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .vehicle-list {
+            margin-bottom: 15px;
+        }
+
+        .vehicle-item {
+            border: 1px solid #999;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #f8f8f8;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        .vehicle-item:hover {
+            background: #eef7ff;
+        }
+
+        .vehicle-item.active {
+            border: 2px solid #2f75b5;
+            background: #dceeff;
+            font-weight: bold;
+        }
+
+        .note {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .preview-img {
+            width: 100%;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            display: none;
+        }
+
+        .summary-box {
+            background: #fff3cd;
+            border: 1px solid #e0c25f;
+            padding: 10px;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+
+        .no-data {
+            border: 1px solid #dc3545;
+            background: #fff0f0;
+            color: #c00000;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .sub-card {
+            border: 1px solid #d9d9d9;
+            padding: 10px;
+            background: #fafafa;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">อัปเดทข้อมูล</div>
+
+        <div id="loading">⏳ กำลังโหลดข้อมูล...</div>
+
+        <div id="listSection" class="hidden">
+            <div class="section-title">ข้อมูลทะเบียนรถ</div>
+            <div id="listSummary" class="summary-box"></div>
+            <div id="vehicleList" class="vehicle-list"></div>
+        </div>
+
+        <div id="formSection" class="hidden">
+            <div class="section-title">ข้อมูลพนักงาน</div>
+
+            <input type="hidden" id="recordId" />
+            <input type="hidden" id="originalPlateNo" />
+            <input type="hidden" id="originalCarOrder" />
+            <input type="hidden" id="originalEmpCode" />
+
+            <div class="form-group">
+                <label for="empCode">รหัสพนักงาน</label>
+                <input type="text" id="empCode" placeholder="เช่น 123456" inputmode="numeric" maxlength="10"
+                    pattern="[0-9]*" />
+            </div>
+
+            <div class="form-group">
+                <label for="empName">ชื่อพนักงาน</label>
+                <input type="text" id="empName" placeholder="ชื่อ-นามสกุล" />
+            </div>
+
+            <div class="form-group">
+                <label for="phone">เบอร์ติดต่อ</label>
+                <input type="tel" id="phone" placeholder="เช่น 0812345678" />
+            </div>
+
+            <div class="section-title">ข้อมูลรถ</div>
+
+            <div class="form-group">
+                <label for="vehicleType">ประเภทรถ</label>
+                <select id="vehicleType">
+                    <option value="">-- เลือก --</option>
+                    <option value="รถยนต์">รถยนต์</option>
+                    <option value="รถจักรยานยนต์">รถจักรยานยนต์</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="carOrder">ลำดับรถ</label>
+                <select id="carOrder">
+                    <option value="">-- เลือก --</option>
+                    <option value="คันที่ 1">คันที่ 1</option>
+                    <option value="คันที่ 2">คันที่ 2</option>
+                    <option value="คันที่ 3">คันที่ 3</option>
+                    <option value="คันที่ 4">คันที่ 4</option>
+                    <option value="อื่นๆ">อื่นๆ</option>
+                </select>
+            </div>
+
+            <div class="form-group hidden" id="carOrderOtherGroup">
+                <label for="carOrderOther">ระบุลำดับรถเพิ่มเติม</label>
+                <input type="text" id="carOrderOther" placeholder="เช่น คันสำรอง / คันพ่วง" />
+            </div>
+
+            <div class="form-group">
+                <label for="brand">ยี่ห้อ</label>
+                <select id="brand" disabled>
+                    <option value="">-- เลือกประเภทรถก่อน --</option>
+                </select>
+            </div>
+
+            <div class="form-group hidden" id="brandOtherGroup">
+                <label for="brandOther">ระบุยี่ห้ออื่นๆ</label>
+                <input type="text" id="brandOther" placeholder="กรอกยี่ห้อรถ" />
+            </div>
+
+            <div class="form-group">
+                <label for="model">รุ่น</label>
+                <select id="model" disabled>
+                    <option value="">-- เลือกยี่ห้อก่อน --</option>
+                </select>
+            </div>
+
+            <div class="form-group hidden" id="modelOtherGroup">
+                <label for="modelOther">ระบุรุ่นอื่นๆ</label>
+                <input type="text" id="modelOther" placeholder="กรอกรุ่นรถ" />
+            </div>
+
+            <div class="form-group">
+                <label for="carColor">สีรถ</label>
+                <input type="text" id="carColor" placeholder="เช่น ดำ, ขาว, เทา" />
+            </div>
+
+            <div class="form-group">
+                <label for="plateNo">เลขทะเบียน</label>
+                <input type="text" id="plateNo" placeholder="เช่น กข1234" />
+            </div>
+
+            <div class="form-group">
+                <label for="province">จังหวัดทะเบียน</label>
+                <select id="province">
+                    <option value="">-- เลือกจังหวัด --</option>
+                </select>
+            </div>
+
+            <div class="section-title">ข้อมูลใบอนุญาต</div>
+
+            <div class="form-group">
+                <label for="inspectionDate">วันภาษีหมดอายุ</label>
+                <input type="date" id="inspectionDate" />
+            </div>
+
+            <div class="status" id="inspectionStatus">ยังไม่ได้เลือกวันที่</div>
+
+            <div class="form-group">
+                <label>แนบรูปภาษีรถ (ป้ายวงกลม)</label>
+                <input type="file" id="taxImage" accept="image/*" onchange="previewImage(event, 'taxPreview')" />
+                <img id="taxPreview" class="preview-img" />
+                <div class="note">ถ้าไม่เปลี่ยนรูป ระบบจะใช้รูปเดิม (ถ้ามีข้อมูลเดิมอยู่)</div>
+            </div>
+
+            <div class="form-group">
+                <label for="licenseExpireDate">วันใบขับขี่หมดอายุ</label>
+                <input type="date" id="licenseExpireDate" />
+            </div>
+
+            <div class="status" id="licenseStatus">ยังไม่ได้เลือกวันที่</div>
+
+            <div class="form-group">
+                <label>แนบรูปใบขับขี่</label>
+                <input type="file" id="licenseImage" accept="image/*" onchange="previewImage(event, 'licensePreview')" />
+                <img id="licensePreview" class="preview-img" />
+                <div class="note">ถ้าไม่เปลี่ยนรูป ระบบจะใช้รูปเดิม (ถ้ามีข้อมูลเดิมอยู่)</div>
+            </div>
+
+            <button class="btn-save" type="button" onclick="submitEdit()">บันทึก</button>
+        </div>
+    </div>
+
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+    <script>
+        // =========================================================
+        // CONFIG
+        // =========================================================
+        const LIFF_ID = "2010252840-7vH9Zsax"; // 🔥 เปลี่ยนเป็น LIFF ID ของหน้าที่ 3 ถ้ามี
+        const LOAD_FLOW_URL = "https://defaultd9cd485e39bd4cc995398c97631fbb.71.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/e956bcde13174c05af2135ecb803afb0/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=LhaHiFXFK4DELoAH-b_uS2rHw28czoPo-BCElqc-LLo";
+        const SAVE_FLOW_URL = "https://defaultd9cd485e39bd4cc995398c97631fbb.71.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/bb94e9e37ad1484ba00bd24d07531f92/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=VdaQQR1gv2YVp_YdTahAc5z6M5iFO5WjYHpoT9HjO1g";
+
+        // =========================================================
+        // MASTER DATA
+        // =========================================================
+        const vehicleData = {
+            "รถยนต์": {
+                "Toyota": ["Yaris ATIV", "Yaris Cross", "Corolla Altis", "Corolla Cross", "Camry", "Hilux Revo", "Hilux Champ", "Vigo Champ", "Fortuner", "Innova Zenix", "อื่นๆ"],
+                "Honda": ["City", "Civic", "Accord", "BR-V", "HR-V", "CR-V", "WR-V", "อื่นๆ"],
+                "Nissan": ["Almera", "Kicks e-POWER", "Navara", "Terra", "อื่นๆ"],
+                "Isuzu": ["D-MAX", "MU-X", "อื่นๆ"],
+                "Mitsubishi": ["Attrage", "Xpander", "Triton", "Pajero Sport", "อื่นๆ"],
+                "Mazda": ["Mazda2", "Mazda3", "CX-3", "CX-30", "CX-5", "BT-50", "อื่นๆ"],
+                "Suzuki": ["Swift", "Ciaz", "Ertiga", "XL7", "Carry", "อื่นๆ"],
+                "BYD": ["Dolphin", "Atto 3", "Seal", "Sealion 6", "M6", "อื่นๆ"],
+                "MG": ["MG4", "MG5", "ZS", "HS", "EXTENDER", "อื่นๆ"],
+                "GWM": ["ORA Good Cat", "Haval H6", "Tank 300", "Poer", "อื่นๆ"],
+                "อื่นๆ": ["อื่นๆ"]
+            },
+            "รถจักรยานยนต์": {
+                "Honda": ["Wave 110i", "Wave 125i", "Dream", "Scoopy", "Click", "PCX", "ADV160", "Forza", "CB150R", "CRF", "อื่นๆ"],
+                "Yamaha": ["Finn", "Fazzio", "Grand Filano", "Aerox", "NMAX", "R15", "MT-15", "XMAX", "อื่นๆ"],
+                "Kawasaki": ["Ninja 250", "Ninja 400", "Z250", "Z400", "KLX", "KSR", "อื่นๆ"],
+                "Suzuki": ["Smash", "Raider", "Burgman", "V-Strom", "อื่นๆ"],
+                "GPX": ["Drone", "Legend", "Demon", "GR200R", "อื่นๆ"],
+                "อื่นๆ": ["อื่นๆ"]
+            }
+        };
+
+        const thaiProvinces = [
+            "กรุงเทพมหานคร", "กระบี่", "กาญจนบุรี", "กาฬสินธุ์", "กำแพงเพชร", "ขอนแก่น",
+            "จันทบุรี", "ฉะเชิงเทรา", "ชลบุรี", "ชัยนาท", "ชัยภูมิ", "ชุมพร",
+            "เชียงราย", "เชียงใหม่", "ตรัง", "ตราด", "ตาก", "นครนายก",
+            "นครปฐม", "นครพนม", "นครราชสีมา", "นครศรีธรรมราช", "นครสวรรค์", "นนทบุรี",
+            "นราธิวาส", "น่าน", "บึงกาฬ", "บุรีรัมย์", "ปทุมธานี", "ประจวบคีรีขันธ์",
+            "ปราจีนบุรี", "ปัตตานี", "พระนครศรีอยุธยา", "พะเยา", "พังงา", "พัทลุง",
+            "พิจิตร", "พิษณุโลก", "เพชรบุรี", "เพชรบูรณ์", "แพร่", "ภูเก็ต",
+            "มหาสารคาม", "มุกดาหาร", "แม่ฮ่องสอน", "ยะลา", "ยโสธร", "ระนอง",
+            "ระยอง", "ราชบุรี", "ลพบุรี", "ลำปาง", "ลำพูน", "เลย",
+            "ศรีสะเกษ", "สกลนคร", "สงขลา", "สตูล", "สมุทรปราการ", "สมุทรสงคราม",
+            "สมุทรสาคร", "สระแก้ว", "สระบุรี", "สิงห์บุรี", "สุโขทัย", "สุพรรณบุรี",
+            "สุราษฎร์ธานี", "สุรินทร์", "หนองคาย", "หนองบัวลำภู", "อ่างทอง", "อุดรธานี",
+            "อุตรดิตถ์", "อุทัยธานี", "อุบลราชธานี", "อำนาจเจริญ"
+        ];
+
+        // =========================================================
+        // ELEMENTS
+        // =========================================================
+        const carOrder = document.getElementById("carOrder");
+        const carOrderOtherGroup = document.getElementById("carOrderOtherGroup");
+        const vehicleTypeSelect = document.getElementById("vehicleType");
+        const brandSelect = document.getElementById("brand");
+        const modelSelect = document.getElementById("model");
+        const brandOtherGroup = document.getElementById("brandOtherGroup");
+        const modelOtherGroup = document.getElementById("modelOtherGroup");
+        const provinceSelect = document.getElementById("province");
+        const empCodeInput = document.getElementById("empCode");
+
+        let lineUserId = "";
+        let loadedItems = [];
+        let selectedIndex = -1;
+        let oldTaxImage = "";
+        let oldLicenseImage = "";
+
+        // =========================================================
+        // INIT
+        // =========================================================
+        function populateProvinces() {
+            thaiProvinces.forEach(province => {
+                const option = document.createElement("option");
+                option.value = province;
+                option.textContent = province;
+                provinceSelect.appendChild(option);
+            });
+        }
+
+        function resetSelect(selectElement, placeholder) {
+            selectElement.innerHTML = "";
+            const defaultOption = document.createElement("option");
+            defaultOption.value = "";
+            defaultOption.textContent = placeholder;
+            selectElement.appendChild(defaultOption);
+        }
+
+        function maskPlate(plate) {
+            if (!plate) return "-";
+            const str = plate.toString();
+            if (str.length <= 2) return str;
+            return str.substring(0, str.length - 2) + "xx";
+        }
+
+        function updateStatus(inputId, statusId, type) {
+            const input = document.getElementById(inputId).value;
+            const statusEl = document.getElementById(statusId);
+
+            if (!input) {
+                statusEl.textContent = "ยังไม่ได้เลือกวันที่";
+                statusEl.classList.remove("green", "red");
+                return;
+            }
+
+            const today = new Date();
+            const expireDate = new Date(input);
+
+            today.setHours(0, 0, 0, 0);
+            expireDate.setHours(0, 0, 0, 0);
+
+            const diffTime = expireDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            let text = "";
+            let color = "";
+
+            if (diffDays < 0) {
+                text = `${type}หมดอายุแล้ว ${Math.abs(diffDays)} วัน ❌`;
+                color = "red";
+            } else if (diffDays <= 30) {
+                text = `${type}ใกล้หมดอายุ (${diffDays} วัน) ⚠️`;
+                color = "red";
+            } else {
+                text = `${type}ปกติ (${diffDays} วัน) ✅`;
+                color = "green";
+            }
+
+            statusEl.textContent = text;
+            statusEl.classList.remove("green", "red");
+            statusEl.classList.add(color);
+        }
+
+        function previewImage(event, previewId) {
+            const file = event.target.files[0];
+            const preview = document.getElementById(previewId);
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = "block";
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function setPreviewFromExisting(previewId, imageValue) {
+            const preview = document.getElementById(previewId);
+
+            if (imageValue && typeof imageValue === "string") {
+                preview.src = imageValue;
+                preview.style.display = "block";
+            } else {
+                preview.src = "";
+                preview.style.display = "none";
+            }
+        }
+
+        function normalizeCarOrder(value) {
+            const validOrders = ["คันที่ 1", "คันที่ 2", "คันที่ 3", "คันที่ 4"];
+            return validOrders.includes(value) ? value : "อื่นๆ";
+        }
+
+        // =========================================================
+        // EVENT
+        // =========================================================
+        carOrder.addEventListener("change", function () {
+            if (this.value === "อื่นๆ") {
+                carOrderOtherGroup.classList.remove("hidden");
+            } else {
+                carOrderOtherGroup.classList.add("hidden");
+                document.getElementById("carOrderOther").value = "";
+            }
+        });
+
+        empCodeInput.addEventListener("input", function () {
+            this.value = this.value.replace(/\D/g, "");
+            if (this.value.length > 10) {
+                this.value = this.value.substring(0, 10);
+            }
+        });
+
+        vehicleTypeSelect.addEventListener("change", function () {
+            const selectedType = this.value;
+
+            resetSelect(brandSelect, "-- เลือกยี่ห้อ --");
+            resetSelect(modelSelect, "-- เลือกยี่ห้อก่อน --");
+
+            brandSelect.disabled = !selectedType;
+            modelSelect.disabled = true;
+
+            brandOtherGroup.classList.add("hidden");
+            modelOtherGroup.classList.add("hidden");
+            document.getElementById("brandOther").value = "";
+            document.getElementById("modelOther").value = "";
+
+            if (selectedType && vehicleData[selectedType]) {
+                const brands = Object.keys(vehicleData[selectedType]);
+                brands.forEach(brand => {
+                    const option = document.createElement("option");
+                    option.value = brand;
+                    option.textContent = brand;
+                    brandSelect.appendChild(option);
+                });
+            }
+        });
+
+        brandSelect.addEventListener("change", function () {
+            const selectedType = vehicleTypeSelect.value;
+            const selectedBrand = this.value;
+
+            resetSelect(modelSelect, "-- เลือกรุ่น --");
+            modelSelect.disabled = !selectedBrand;
+
+            modelOtherGroup.classList.add("hidden");
+            document.getElementById("modelOther").value = "";
+
+            if (selectedBrand === "อื่นๆ") {
+                brandOtherGroup.classList.remove("hidden");
+            } else {
+                brandOtherGroup.classList.add("hidden");
+                document.getElementById("brandOther").value = "";
+            }
+
+            if (
+                selectedType &&
+                selectedBrand &&
+                vehicleData[selectedType] &&
+                vehicleData[selectedType][selectedBrand]
+            ) {
+                vehicleData[selectedType][selectedBrand].forEach(model => {
+                    const option = document.createElement("option");
+                    option.value = model;
+                    option.textContent = model;
+                    modelSelect.appendChild(option);
+                });
+            }
+        });
+
+        modelSelect.addEventListener("change", function () {
+            if (this.value === "อื่นๆ") {
+                modelOtherGroup.classList.remove("hidden");
+            } else {
+                modelOtherGroup.classList.add("hidden");
+                document.getElementById("modelOther").value = "";
+            }
+        });
+
+        document.getElementById("inspectionDate").addEventListener("change", function () {
+            updateStatus("inspectionDate", "inspectionStatus", "ภาษี");
+        });
+
+        document.getElementById("licenseExpireDate").addEventListener("change", function () {
+            updateStatus("licenseExpireDate", "licenseStatus", "ใบขับขี่");
+        });
+
+        // =========================================================
+        // LIFF
+        // =========================================================
+        async function initLIFF() {
+            try {
+                await liff.init({ liffId: LIFF_ID });
+
+                if (!liff.isLoggedIn()) {
+                    liff.login({ redirectUri: window.location.href });
+                    return;
+                }
+
+                lineUserId = liff.getContext().userId;
+                console.log("LINE userId:", lineUserId);
+
+                await loadVehicleList();
+
+            } catch (err) {
+                console.error("LIFF error:", err);
+                alert("LIFF Error: " + err.message);
+            }
+        }
+
+        // =========================================================
+        // LOAD DATA
+        // =========================================================
+        async function loadVehicleList() {
+            try {
+                const res = await fetch(LOAD_FLOW_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ lineUserId: lineUserId })
+                });
+
+                const response = await res.json();
+                console.log("LOAD RESPONSE:", response);
+
+                loadedItems = (response && response.items) ? response.items : [];
+
+                document.getElementById("loading").style.display = "none";
+
+                if (loadedItems.length === 0) {
+                    document.getElementById("listSection").classList.remove("hidden");
+                    document.getElementById("listSummary").innerHTML = "❌ ไม่พบข้อมูลการลงทะเบียน";
+                    document.getElementById("vehicleList").innerHTML = `<div class="no-data">ไม่พบรถสำหรับอัปเดทข้อมูล</div>`;
+                    return;
+                }
+
+                // sort ตามลำดับรถ
+                const orderMap = { "คันที่ 1": 1, "คันที่ 2": 2, "คันที่ 3": 3, "คันที่ 4": 4 };
+                loadedItems.sort((a, b) => {
+                    const av = orderMap[a.carOrder] || 99;
+                    const bv = orderMap[b.carOrder] || 99;
+                    return av - bv;
+                });
+
+                document.getElementById("listSection").classList.remove("hidden");
+                document.getElementById("listSummary").innerHTML = `พบข้อมูลทั้งหมด <b>${loadedItems.length}</b> คัน กรุณาเลือกคันที่ต้องการแก้ไข`;
+
+                renderVehicleList();
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById("loading").style.display = "none";
+                document.getElementById("listSection").classList.remove("hidden");
+                document.getElementById("listSummary").innerHTML = "❌ โหลดข้อมูลไม่สำเร็จ";
+                document.getElementById("vehicleList").innerHTML = `<div class="no-data">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>`;
+            }
+        }
+
+        function renderVehicleList() {
+            const vehicleList = document.getElementById("vehicleList");
+
+            let html = "";
+            loadedItems.forEach((item, index) => {
+                html += `
+                    <button type="button" class="vehicle-item ${selectedIndex === index ? 'active' : ''}" onclick="selectVehicle(${index})">
+                        ${item.carOrder || "ไม่ระบุลำดับ"} : ${maskPlate(item.plateNo)}
+                    </button>
+                `;
+            });
+
+            vehicleList.innerHTML = html;
+        }
+
+        function selectVehicle(index) {
+            selectedIndex = index;
+            renderVehicleList();
+
+            const d = loadedItems[index];
+            console.log("SELECTED:", d);
+
+            document.getElementById("formSection").classList.remove("hidden");
+
+            // KEY สำหรับ update
+            document.getElementById("recordId").value = d.id || d.ID || d.itemId || d.recordId || "";
+            document.getElementById("originalPlateNo").value = d.plateNo || "";
+            document.getElementById("originalCarOrder").value = d.carOrder || "";
+            document.getElementById("originalEmpCode").value = d.empCode || "";
+
+            // Employee
+            document.getElementById("empCode").value = d.empCode || "";
+            document.getElementById("empName").value = d.empName || "";
+            document.getElementById("phone").value = d.phone || "";
+
+            // Vehicle type
+            vehicleTypeSelect.value = d.vehicleType || "";
+            vehicleTypeSelect.dispatchEvent(new Event("change"));
+
+            // Brand
+            const availableBrands = vehicleData[d.vehicleType] ? Object.keys(vehicleData[d.vehicleType]) : [];
+            const brandValue = availableBrands.includes(d.brand) ? d.brand : "อื่นๆ";
+
+            if (d.vehicleType) {
+                brandSelect.value = brandValue;
+                brandSelect.dispatchEvent(new Event("change"));
+            }
+
+            if (brandValue === "อื่นๆ") {
+                brandOtherGroup.classList.remove("hidden");
+                document.getElementById("brandOther").value = d.brand || "";
+            } else {
+                document.getElementById("brandOther").value = "";
+            }
+
+            // Model
+            let availableModels = [];
+            if (vehicleData[d.vehicleType] && vehicleData[d.vehicleType][brandValue]) {
+                availableModels = vehicleData[d.vehicleType][brandValue];
+            }
+
+            const modelValue = availableModels.includes(d.model) ? d.model : "อื่นๆ";
+
+            if (d.brand) {
+                modelSelect.value = modelValue;
+                modelSelect.dispatchEvent(new Event("change"));
+            }
+
+            if (modelValue === "อื่นๆ") {
+                modelOtherGroup.classList.remove("hidden");
+                document.getElementById("modelOther").value = d.model || "";
+            } else {
+                document.getElementById("modelOther").value = "";
+            }
+
+            // Car order
+            const normalizedOrder = normalizeCarOrder(d.carOrder || "");
+            carOrder.value = normalizedOrder;
+            carOrder.dispatchEvent(new Event("change"));
+
+            if (normalizedOrder === "อื่นๆ") {
+                document.getElementById("carOrderOther").value = d.carOrder || "";
+            } else {
+                document.getElementById("carOrderOther").value = "";
+            }
+
+            // Other fields
+            document.getElementById("carColor").value = d.carColor || "";
+            document.getElementById("plateNo").value = d.plateNo || "";
+            document.getElementById("province").value = d.province || "";
+            document.getElementById("inspectionDate").value = d.inspectionDate || "";
+            document.getElementById("licenseExpireDate").value = d.licenseExpireDate || "";
+
+            updateStatus("inspectionDate", "inspectionStatus", "ภาษี");
+            updateStatus("licenseExpireDate", "licenseStatus", "ใบขับขี่");
+
+            // รูปเดิม (ถ้า Flow ส่งกลับมา)
+            oldTaxImage = d.taxImageBase64 || d.taxImage || d.taxImageUrl || "";
+            oldLicenseImage = d.licenseImageBase64 || d.licenseImage || d.licenseImageUrl || "";
+
+            document.getElementById("taxImage").value = "";
+            document.getElementById("licenseImage").value = "";
+
+            setPreviewFromExisting("taxPreview", oldTaxImage);
+            setPreviewFromExisting("licensePreview", oldLicenseImage);
+
+            // scroll ลงไป form
+            document.getElementById("formSection").scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+
+        // =========================================================
+        // SAVE EDIT
+        // =========================================================
+        function resizeImage(file, maxWidth = 800) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                const reader = new FileReader();
+
+                reader.onload = e => img.src = e.target.result;
+
+                img.onload = () => {
+                    const canvas = document.createElement("canvas");
+                    const scale = Math.min(1, maxWidth / img.width);
+                    canvas.width = Math.round(img.width * scale);
+                    canvas.height = Math.round(img.height * scale);
+
+                    const ctx = canvas.getContext("2d");
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                    canvas.toBlob(blob => {
+                        resolve(blob);
+                    }, "image/jpeg", 0.7);
+                };
+
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function toBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        async function submitEdit() {
+            document.body.classList.add("loading");
+
+            if (!lineUserId) {
+                alert("❌ ยังไม่ได้รับ LINE userId กรุณาเปิดผ่าน LINE");
+                document.body.classList.remove("loading");
+                return;
+            }
+
+            if (selectedIndex < 0) {
+                alert("❌ กรุณาเลือกทะเบียนรถที่ต้องการแก้ไขก่อน");
+                document.body.classList.remove("loading");
+                return;
+            }
+
+            const empCode = document.getElementById("empCode").value.trim();
+            const empName = document.getElementById("empName").value.trim();
+
+            if (!/^\d{1,10}$/.test(empCode)) {
+                alert("❌ รหัสพนักงานต้องเป็นตัวเลขไม่เกิน 10 หลัก");
+                document.body.classList.remove("loading");
+                return;
+            }
+
+            if (!empCode || !empName) {
+                alert("❌ กรุณากรอกรหัสพนักงานและชื่อ");
+                document.body.classList.remove("loading");
+                return;
+            }
+
+            const btn = document.querySelector(".btn-save");
+            btn.disabled = true;
+            btn.textContent = "กำลังบันทึก...";
+
+            try {
+                const taxFileRaw = document.getElementById("taxImage").files[0];
+                const licenseFileRaw = document.getElementById("licenseImage").files[0];
+
+                let taxBase64 = oldTaxImage || "";
+                let licenseBase64 = oldLicenseImage || "";
+
+                // ถ้ามีอัปโหลดใหม่ ให้ override
+                if (taxFileRaw) {
+                    const taxFile = await resizeImage(taxFileRaw);
+                    taxBase64 = await toBase64(taxFile);
+                }
+
+                if (licenseFileRaw) {
+                    const licenseFile = await resizeImage(licenseFileRaw);
+                    licenseBase64 = await toBase64(licenseFile);
+                }
+
+                // ถ้ายังไม่มีเลยทั้งของเก่าและของใหม่ ค่อยบังคับ
+                if (!taxBase64 || !licenseBase64) {
+                    alert("❌ กรุณาแนบรูปภาษีรถ และ ใบขับขี่ ให้ครบ");
+                    return;
+                }
+
+                const selectedData = loadedItems[selectedIndex] || {};
+
+                const data = {
+                    // 🔥 สำคัญ
+                    dataStatus: "edit",
+
+                    // line
+                    lineUserId: lineUserId,
+
+                    // คีย์สำหรับ Flow ใช้อัปเดทรายการเดิม
+                    recordId: document.getElementById("recordId").value,
+                    originalPlateNo: document.getElementById("originalPlateNo").value,
+                    originalCarOrder: document.getElementById("originalCarOrder").value,
+                    originalEmpCode: document.getElementById("originalEmpCode").value,
+
+                    // เผื่อ flow รับชื่อ field อื่น
+                    id: selectedData.id || selectedData.ID || selectedData.itemId || selectedData.recordId || "",
+                    oldPlateNo: selectedData.plateNo || "",
+                    oldCarOrder: selectedData.carOrder || "",
+
+                    // data ปัจจุบัน
+                    empCode: empCode,
+                    empName: empName,
+                    phone: document.getElementById("phone").value.trim(),
+
+                    carOrder: carOrder.value === "อื่นๆ"
+                        ? document.getElementById("carOrderOther").value.trim()
+                        : carOrder.value,
+
+                    vehicleType: vehicleTypeSelect.value,
+
+                    brand: brandSelect.value === "อื่นๆ"
+                        ? document.getElementById("brandOther").value.trim()
+                        : brandSelect.value,
+
+                    model: modelSelect.value === "อื่นๆ"
+                        ? document.getElementById("modelOther").value.trim()
+                        : modelSelect.value,
+
+                    carColor: document.getElementById("carColor").value.trim(),
+                    plateNo: document.getElementById("plateNo").value.trim(),
+                    province: provinceSelect.value,
+
+                    inspectionDate: document.getElementById("inspectionDate").value,
+                    licenseExpireDate: document.getElementById("licenseExpireDate").value,
+
+                    // รูป
+                    taxImageBase64: taxBase64,
+                    licenseImageBase64: licenseBase64
+                };
+
+                console.log("SEND EDIT DATA:", data);
+
+                const response = await fetch(SAVE_FLOW_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    throw new Error("HTTP Error: " + response.status);
+                }
+
+                const result = await response.text();
+                console.log("SAVE RESPONSE:", result);
+
+                alert("✅ อัปเดทข้อมูลเรียบร้อย");
+
+                // reload list ใหม่หลังแก้ไข
+                selectedIndex = -1;
+                document.getElementById("formSection").classList.add("hidden");
+                document.getElementById("vehicleList").innerHTML = "";
+                document.getElementById("loading").style.display = "block";
+                oldTaxImage = "";
+                oldLicenseImage = "";
+
+                await loadVehicleList();
+
+            } catch (err) {
+                console.error(err);
+                alert("❌ เกิดข้อผิดพลาด กรุณาลองใหม่");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "บันทึก";
+                document.body.classList.remove("loading");
+            }
+        }
+
+        // =========================================================
+        // START
+        // =========================================================
+        window.onload = function () {
+            populateProvinces();
+            initLIFF();
+
+            updateStatus("inspectionDate", "inspectionStatus", "ภาษี");
+            updateStatus("licenseExpireDate", "licenseStatus", "ใบขับขี่");
+        };
+    </script>
+</body>
+
+</html>
