@@ -701,6 +701,13 @@
                 // ===== SUCCESS =====
                 alert("✅ บันทึกข้อมูลเรียบร้อย");
 
+                // ✅ ปิด LIFF
+                if (liff && liff.isInClient()) {
+                    liff.closeWindow();
+                } else {
+                    window.close(); // fallback browser
+                }
+
                 // ✅ Reset form
                 document.getElementById("taxImage").value = "";
                 document.getElementById("licenseImage").value = "";
