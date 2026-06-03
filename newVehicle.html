@@ -161,12 +161,7 @@
                 <option value="คันที่ 2">คันที่ 2</option>
             </select>
         </div>
-
-        <div class="form-group hidden" id="carOrderOtherGroup">
-            <label for="carOrderOther">ระบุลำดับรถเพิ่มเติม</label>
-            <input type="text" id="carOrderOther" placeholder="เช่น คันสำรอง / คันพ่วง" />
-        </div>
-
+        
         <div class="form-group">
             <label for="vehicleType">ประเภทรถ</label>
             <select id="vehicleType">
@@ -175,6 +170,13 @@
                 <option value="รถจักรยานยนต์">รถจักรยานยนต์</option>
             </select>
         </div>
+
+        <div class="form-group hidden" id="carOrderOtherGroup">
+            <label for="carOrderOther">ระบุลำดับรถเพิ่มเติม</label>
+            <input type="text" id="carOrderOther" placeholder="เช่น คันสำรอง / คันพ่วง" />
+        </div>
+
+
 
         <div class="form-group">
             <label for="brand">ยี่ห้อ</label>
@@ -614,7 +616,7 @@
                 alert("❌ รหัสพนักงานต้องเป็นตัวเลขไม่เกิน 10 หลัก");
                 return;
             }
-            
+
             if (!empCode || !empName) {
                 alert("กรุณากรอกรหัสพนักงานและชื่อ ✅");
                 return;
