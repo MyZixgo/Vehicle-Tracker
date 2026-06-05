@@ -639,7 +639,16 @@
                 alert("กรุณากรอกรหัสพนักงานและชื่อ ✅");
                 return;
             }
+            // ✅ Consent Check
+            const consentSelected = document.querySelector('input[name="consent"]:checked');
 
+            if (!consentSelected) {
+                alert("❌ กรุณาเลือกนโยบายความเป็นส่วนตัว");
+                document.body.classList.remove("loading");
+                return;
+            }
+
+            const consentValue = consentSelected.value; // allow / deny
             const btn = document.querySelector(".btn-save");
 
             try {
@@ -670,7 +679,8 @@
                     phone: document.getElementById("phone").value,
 
                     lineUserId: lineUserId,
-
+                    consent: consentValue,
+                    
                     carOrder: carOrder.value === "อื่นๆ"
                         ? document.getElementById("carOrderOther").value
                         : carOrder.value,
