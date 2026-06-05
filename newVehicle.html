@@ -248,6 +248,20 @@
 
         <div class="status" id="licenseStatus">ยังไม่ได้เลือกวันที่</div>
 
+        <div class="section-title">นโยบายความเป็นส่วนตัว</div>
+
+        <div class="form-group">
+            <label>
+                <input type="radio" name="consent" value="agree">
+                ✅ ยินยอมให้เปิดเผยข้อมูล ทะเบียนรถ / ใบขับขี่
+            </label>
+
+            <label style="margin-top:5px;">
+                <input type="radio" name="consent" value="disagree">
+                ❌ ไม่ยินยอมให้เปิดเผยข้อมูล
+            </label>
+        </div>
+
         <button class="btn-save" type="button" onclick="submitForm()">บันทึก</button>
 
     </div>
@@ -259,56 +273,24 @@
         // ===== Master Data =====
         const vehicleData = {
             "รถยนต์": {
-                "Toyota": [
-                    "Yaris ATIV", "Yaris Cross", "Corolla Altis", "Corolla Cross",
-                    "Camry", "Hilux Revo", "Hilux Champ", "Vigo Champ", "Fortuner", "Innova Zenix",
-                    "อื่นๆ"
-                ],
-                "Honda": [
-                    "City", "Civic", "Accord", "BR-V", "HR-V", "CR-V", "WR-V", "อื่นๆ"
-                ],
-                "Nissan": [
-                    "Almera", "Kicks e-POWER", "Navara", "Terra", "อื่นๆ"
-                ],
-                "Isuzu": [
-                    "D-MAX", "MU-X", "อื่นๆ"
-                ],
-                "Mitsubishi": [
-                    "Attrage", "Xpander", "Triton", "Pajero Sport", "อื่นๆ"
-                ],
-                "Mazda": [
-                    "Mazda2", "Mazda3", "CX-3", "CX-30", "CX-5", "BT-50", "อื่นๆ"
-                ],
-                "Suzuki": [
-                    "Swift", "Ciaz", "Ertiga", "XL7", "Carry", "อื่นๆ"
-                ],
-                "BYD": [
-                    "Dolphin", "Atto 3", "Seal", "Sealion 6", "M6", "อื่นๆ"
-                ],
-                "MG": [
-                    "MG4", "MG5", "ZS", "HS", "EXTENDER", "อื่นๆ"
-                ],
-                "GWM": [
-                    "ORA Good Cat", "Haval H6", "Tank 300", "Poer", "อื่นๆ"
-                ],
+                "Toyota": ["Yaris ATIV", "Yaris Cross", "Corolla Altis", "Corolla Cross", "Camry", "Hilux Revo", "Hilux Champ", "Vigo Champ", "Fortuner", "Innova Zenix", "อื่นๆ"],
+                "Honda": ["City", "Civic", "Accord", "BR-V", "HR-V", "CR-V", "WR-V", "อื่นๆ"],
+                "Nissan": ["Almera", "Kicks e-POWER", "Navara", "Terra", "อื่นๆ"],
+                "Isuzu": ["D-MAX", "MU-X", "อื่นๆ"],
+                "Mitsubishi": ["Attrage", "Xpander", "Triton", "Pajero Sport", "อื่นๆ"],
+                "Mazda": ["Mazda2", "Mazda3", "CX-3", "CX-30", "CX-5", "BT-50", "อื่นๆ"],
+                "Suzuki": ["Swift", "Ciaz", "Ertiga", "XL7", "Carry", "อื่นๆ"],
+                "BYD": ["Dolphin", "Atto 3", "Seal", "Sealion 6", "M6", "อื่นๆ"],
+                "MG": ["MG4", "MG5", "ZS", "HS", "EXTENDER", "อื่นๆ"],
+                "GWM": ["ORA Good Cat", "Haval H6", "Tank 300", "Poer", "อื่นๆ"],
                 "อื่นๆ": ["อื่นๆ"]
             },
             "รถจักรยานยนต์": {
-                "Honda": [
-                    "Wave 110i", "Wave 125i", "Dream", "Scoopy", "Click", "PCX", "ADV160", "Forza", "CB150R", "CRF", "อื่นๆ"
-                ],
-                "Yamaha": [
-                    "Finn", "Fazzio", "Grand Filano", "Aerox", "NMAX", "R15", "MT-15", "XMAX", "อื่นๆ"
-                ],
-                "Kawasaki": [
-                    "Ninja 250", "Ninja 400", "Z250", "Z400", "KLX", "KSR", "อื่นๆ"
-                ],
-                "Suzuki": [
-                    "Smash", "Raider", "Burgman", "V-Strom", "อื่นๆ"
-                ],
-                "GPX": [
-                    "Drone", "Legend", "Demon", "GR200R", "อื่นๆ"
-                ],
+                "Honda": ["Wave 110i", "Wave 125i", "Dream", "Scoopy", "Click", "PCX", "ADV160", "Forza", "CB150R", "CRF", "อื่นๆ"],
+                "Yamaha": ["Finn", "Fazzio", "Grand Filano", "Aerox", "NMAX", "R15", "MT-15", "XMAX", "อื่นๆ"],
+                "Kawasaki": ["Ninja 250", "Ninja 400", "Z250", "Z400", "KLX", "KSR", "อื่นๆ"],
+                "Suzuki": ["Smash", "Raider", "Burgman", "V-Strom", "อื่นๆ"],
+                "GPX": ["Drone", "Legend", "Demon", "GR200R", "อื่นๆ"],
                 "อื่นๆ": ["อื่นๆ"]
             }
         };
@@ -330,195 +312,76 @@
         ];
 
         // ===== Elements =====
-        const carOrder = document.getElementById("carOrder");
-        const carOrderOtherGroup = document.getElementById("carOrderOtherGroup");
         const vehicleTypeSelect = document.getElementById("vehicleType");
         const brandSelect = document.getElementById("brand");
         const modelSelect = document.getElementById("model");
-        const brandOtherGroup = document.getElementById("brandOtherGroup");
-        const modelOtherGroup = document.getElementById("modelOtherGroup");
-        const provinceSelect = document.getElementById("province");
-        const empCodeInput = document.getElementById("empCode");
 
-        // ===== Init Province =====
+        // ===== Province =====
         function populateProvinces() {
-            thaiProvinces.forEach(province => {
+            thaiProvinces.forEach(p => {
                 const option = document.createElement("option");
-                option.value = province;
-                option.textContent = province;
-                provinceSelect.appendChild(option);
+                option.value = p;
+                option.textContent = p;
+                document.getElementById("province").appendChild(option);
             });
         }
 
-        // ===== Utility =====
-        function resetSelect(selectElement, placeholder) {
-            selectElement.innerHTML = "";
-            const defaultOption = document.createElement("option");
-            defaultOption.value = "";
-            defaultOption.textContent = placeholder;
-            selectElement.appendChild(defaultOption);
+        // ===== Reset =====
+        function resetSelect(select, text) {
+            select.innerHTML = `<option value="">${text}</option>`;
         }
 
-        // ===== Car Order Other =====
-        carOrder.addEventListener("change", function () {
-            if (this.value === "อื่นๆ") {
-                carOrderOtherGroup.classList.remove("hidden");
-            } else {
-                carOrderOtherGroup.classList.add("hidden");
-                document.getElementById("carOrderOther").value = "";
-            }
-        });
-
-        empCodeInput.addEventListener("input", function () {
-            // ลบทุกอย่างที่ไม่ใช่เลข
-            this.value = this.value.replace(/\D/g, "");
-
-            // จำกัด 10 ตัว (กัน paste เกิน)
-            if (this.value.length > 10) {
-                this.value = this.value.substring(0, 10);
-            }
-        });
-
-        // ===== Vehicle Type Change =====
+        // ===== Vehicle Type =====
         vehicleTypeSelect.addEventListener("change", function () {
-            const selectedType = this.value;
-
             resetSelect(brandSelect, "-- เลือกยี่ห้อ --");
             resetSelect(modelSelect, "-- เลือกยี่ห้อก่อน --");
-
-            brandSelect.disabled = !selectedType;
+            brandSelect.disabled = !this.value;
             modelSelect.disabled = true;
 
-            brandOtherGroup.classList.add("hidden");
-            modelOtherGroup.classList.add("hidden");
-            document.getElementById("brandOther").value = "";
-            document.getElementById("modelOther").value = "";
-
-            if (selectedType && vehicleData[selectedType]) {
-                const brands = Object.keys(vehicleData[selectedType]);
-
-                brands.forEach(brand => {
-                    const option = document.createElement("option");
-                    option.value = brand;
-                    option.textContent = brand;
-                    brandSelect.appendChild(option);
+            if (vehicleData[this.value]) {
+                Object.keys(vehicleData[this.value]).forEach(b => {
+                    brandSelect.innerHTML += `<option value="${b}">${b}</option>`;
                 });
             }
         });
 
-        // ===== Brand Change =====
+        // ===== Brand =====
         brandSelect.addEventListener("change", function () {
-            const selectedType = vehicleTypeSelect.value;
-            const selectedBrand = this.value;
-
             resetSelect(modelSelect, "-- เลือกรุ่น --");
-            modelSelect.disabled = !selectedBrand;
+            modelSelect.disabled = !this.value;
 
-            modelOtherGroup.classList.add("hidden");
-            document.getElementById("modelOther").value = "";
+            const type = vehicleTypeSelect.value;
+            const brand = this.value;
 
-            if (selectedBrand === "อื่นๆ") {
-                brandOtherGroup.classList.remove("hidden");
-            } else {
-                brandOtherGroup.classList.add("hidden");
-                document.getElementById("brandOther").value = "";
-            }
-
-            if (
-                selectedType &&
-                selectedBrand &&
-                vehicleData[selectedType] &&
-                vehicleData[selectedType][selectedBrand]
-            ) {
-                vehicleData[selectedType][selectedBrand].forEach(model => {
-                    const option = document.createElement("option");
-                    option.value = model;
-                    option.textContent = model;
-                    modelSelect.appendChild(option);
+            if (vehicleData[type] && vehicleData[type][brand]) {
+                vehicleData[type][brand].forEach(m => {
+                    modelSelect.innerHTML += `<option value="${m}">${m}</option>`;
                 });
             }
         });
 
-        // ===== Model Change =====
-        modelSelect.addEventListener("change", function () {
-            if (this.value === "อื่นๆ") {
-                modelOtherGroup.classList.remove("hidden");
-            } else {
-                modelOtherGroup.classList.add("hidden");
-                document.getElementById("modelOther").value = "";
-            }
-        });
-
-        // ===== Calculate Remaining Days =====
-        function updateStatus(inputId, statusId, type) {
-            const input = document.getElementById(inputId).value;
-            const statusEl = document.getElementById(statusId);
-
-            if (!input) {
-                statusEl.textContent = "ยังไม่ได้เลือกวันที่";
-                statusEl.classList.remove("green", "red");
-                return;
-            }
-
-            const today = new Date();
-            const expireDate = new Date(input);
-
-            // Reset time เพื่อให้คำนวณวันตรง
-            today.setHours(0, 0, 0, 0);
-            expireDate.setHours(0, 0, 0, 0);
-
-            const diffTime = expireDate - today;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-            let text = "";
-            let color = "";
-
-            if (diffDays < 0) {
-                text = `${type}หมดอายุแล้ว ${Math.abs(diffDays)} วัน ❌`;
-                color = "red";
-            } else if (diffDays <= 30) {
-                text = `${type}ใกล้หมดอายุ (${diffDays} วัน) ⚠️`;
-                color = "red";
-            } else {
-                text = `${type}ปกติ (${diffDays} วัน) ✅`;
-                color = "green";
-            }
-
-            statusEl.textContent = text;
-            statusEl.classList.remove("green", "red");
-            statusEl.classList.add(color);
-        }
-
-        document.getElementById("inspectionDate").addEventListener("change", function () {
-            updateStatus("inspectionDate", "inspectionStatus", "ภาษี");
-        });
-
-        document.getElementById("licenseExpireDate").addEventListener("change", function () {
-            updateStatus("licenseExpireDate", "licenseStatus", "ใบขับขี่");
-        });
-
-        // ===== Preview Image =====
-        function previewImage(event, previewId) {
+        // ===== Preview =====
+        function previewImage(event, id) {
             const file = event.target.files[0];
-            const preview = document.getElementById(previewId);
+            if (!file) return;
 
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    preview.src = e.target.result;
-                    preview.classList.remove("hidden");
-                }
-                reader.readAsDataURL(file);
-            }
+            const reader = new FileReader();
+            reader.onload = e => {
+                const img = document.getElementById(id);
+                img.src = e.target.result;
+                img.classList.remove("hidden");
+            };
+            reader.readAsDataURL(file);
         }
 
-        // Disable ปุ่มบันทึก ถ้ายังไม่มีรูปเลย
-        function checkImageRequired() {
+        // ===== Disable Save Logic =====
+        function checkFormReady() {
             const tax = document.getElementById("taxImage").files.length;
             const license = document.getElementById("licenseImage").files.length;
+            const consent = document.querySelector('input[name="consent"]:checked');
             const btn = document.querySelector(".btn-save");
 
-            if (tax === 0 && license === 0) {
+            if (tax === 0 || license === 0 || !consent) {
                 btn.disabled = true;
                 btn.style.opacity = 0.5;
             } else {
@@ -527,7 +390,13 @@
             }
         }
 
-        // get liff ID line
+        document.getElementById("taxImage").addEventListener("change", checkFormReady);
+        document.getElementById("licenseImage").addEventListener("change", checkFormReady);
+        document.querySelectorAll('input[name="consent"]').forEach(el => {
+            el.addEventListener("change", checkFormReady);
+        });
+
+        // ===== LIFF =====
         let lineUserId = "";
 
         async function initLIFF() {
@@ -542,206 +411,121 @@
                 const context = liff.getContext();
                 lineUserId = context.userId;
 
-                console.log("LINE userId:", lineUserId);
-
             } catch (err) {
-                console.error("LIFF error:", err);
                 alert("LIFF Error: " + err.message);
             }
         }
 
-        // ===== Submit Demo =====
+        // ===== Submit =====
         async function submitForm() {
             document.body.classList.add("loading");
-            // ===== CONFIG =====
-            const FLOW_URL = "https://defaultd9cd485e39bd4cc995398c97631fbb.71.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/bb94e9e37ad1484ba00bd24d07531f92/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=VdaQQR1gv2YVp_YdTahAc5z6M5iFO5WjYHpoT9HjO1g"; // 🔥 ใส่ Flow URL
-
-            if (!lineUserId) {
-                alert("❌ ยังไม่ได้รับ LINE userId กรุณาเปิดผ่าน LINE");
-                return;
-            }
-
-            const taxFileRaw = document.getElementById("taxImage").files[0];
-            const licenseFileRaw = document.getElementById("licenseImage").files[0];
-
-            // ✅ validation รูป
-            if (!taxFileRaw || !licenseFileRaw) {
-                alert("❌ กรุณาแนบรูปภาษีรถ และ ใบขับขี่ ให้ครบ");
-                document.body.classList.remove("loading");
-                return;
-            }
-
-            // ===== Helper: resize image =====
-            function resizeImage(file, maxWidth = 800) {
-                return new Promise((resolve) => {
-                    const img = new Image();
-                    const reader = new FileReader();
-
-                    reader.onload = e => img.src = e.target.result;
-
-                    img.onload = () => {
-                        const canvas = document.createElement("canvas");
-                        // const scale = maxWidth / img.width;
-                        const scale = Math.min(1, maxWidth / img.width);
-                        canvas.width = maxWidth;
-                        canvas.height = img.height * scale;
-
-                        const ctx = canvas.getContext("2d");
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-                        canvas.toBlob(blob => {
-                            resolve(blob);
-                        }, "image/jpeg", 0.7);
-                    };
-
-                    reader.readAsDataURL(file);
-                });
-            }
-
-            // ===== Helper: base64 =====
-            function toBase64(file) {
-                return new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.readAsDataURL(file);
-                    reader.onload = () => resolve(reader.result);
-                    reader.onerror = error => reject(error);
-                });
-            }
-
-            // ===== Validate =====
-            const empCode = document.getElementById("empCode").value.trim();
-            const empName = document.getElementById("empName").value.trim();
-
-            if (!/^\d{1,10}$/.test(empCode)) {
-                alert("❌ รหัสพนักงานต้องเป็นตัวเลขไม่เกิน 10 หลัก");
-                return;
-            }
-
-            if (!empCode || !empName) {
-                alert("กรุณากรอกรหัสพนักงานและชื่อ ✅");
-                return;
-            }
 
             const btn = document.querySelector(".btn-save");
 
             try {
-                // ===== UX =====
+                // ✅ LINE check
+                if (!lineUserId) {
+                    alert("❌ ยังไม่ได้รับ LINE userId");
+                    return;
+                }
+
+                // ✅ Consent
+                const consentEl = document.querySelector('input[name="consent"]:checked');
+                if (!consentEl) {
+                    alert("⚠️ กรุณาเลือก Consent");
+                    return;
+                }
+
+                const consentValue = consentEl.value;
+
+                // ✅ Validate
+                const empCode = document.getElementById("empCode").value.trim();
+                const empName = document.getElementById("empName").value.trim();
+
+                if (!/^\d{1,10}$/.test(empCode)) {
+                    alert("❌ รหัสพนักงานไม่ถูกต้อง");
+                    return;
+                }
+
+                if (!empCode || !empName) {
+                    alert("❌ กรอกข้อมูลไม่ครบ");
+                    return;
+                }
+
+                // ✅ Files
+                const taxFile = document.getElementById("taxImage").files[0];
+                const licenseFile = document.getElementById("licenseImage").files[0];
+
+                if (!taxFile || !licenseFile) {
+                    alert("❌ แนบรูปไม่ครบ");
+                    return;
+                }
+
                 btn.disabled = true;
                 btn.textContent = "กำลังบันทึก...";
 
-                // ===== FILE =====
-                const taxFileRaw = document.getElementById("taxImage").files[0];
-                const licenseFileRaw = document.getElementById("licenseImage").files[0];
+                const toBase64 = file => new Promise(res => {
+                    const reader = new FileReader();
+                    reader.onload = () => res(reader.result);
+                    reader.readAsDataURL(file);
+                });
 
-                // ✅ Resize (ลดโหลด Flow)
-                const taxFile = taxFileRaw ? await resizeImage(taxFileRaw) : null;
-                const licenseFile = licenseFileRaw ? await resizeImage(licenseFileRaw) : null;
+                const taxBase64 = await toBase64(taxFile);
+                const licenseBase64 = await toBase64(licenseFile);
 
-                // ✅ Convert Base64
-                const taxBase64 = taxFile ? await toBase64(taxFile) : "";
-                const licenseBase64 = licenseFile ? await toBase64(licenseFile) : "";
+                // ✅ Mask ถ้าไม่ยินยอม
+                function maskPlate(p) {
+                    return p ? p.substring(0, 4) + "xx" : "";
+                }
+
+                const plateNo = consentValue === "disagree"
+                    ? maskPlate(document.getElementById("plateNo").value)
+                    : document.getElementById("plateNo").value;
 
                 // ===== DATA =====
                 const data = {
-
-                    // สถานะรายการใหม่
-                    dataStatus: "new",
-
-                    empCode: empCode,
-                    empName: empName,
+                    empCode,
+                    empName,
                     phone: document.getElementById("phone").value,
-
-                    lineUserId: lineUserId,
-
-                    carOrder: carOrder.value === "อื่นๆ"
-                        ? document.getElementById("carOrderOther").value
-                        : carOrder.value,
-
+                    lineUserId,
+                    consent: consentValue,
                     vehicleType: vehicleTypeSelect.value,
-
-                    brand: brandSelect.value === "อื่นๆ"
-                        ? document.getElementById("brandOther").value
-                        : brandSelect.value,
-
-                    model: modelSelect.value === "อื่นๆ"
-                        ? document.getElementById("modelOther").value
-                        : modelSelect.value,
-
-                    carColor: document.getElementById("carColor").value,
-                    plateNo: document.getElementById("plateNo").value,
-                    province: provinceSelect.value,
-
-                    inspectionDate: document.getElementById("inspectionDate").value,
-                    licenseExpireDate: document.getElementById("licenseExpireDate").value,
-
-                    // ✅ Image Base64
+                    brand: brandSelect.value,
+                    model: modelSelect.value,
+                    plateNo: plateNo,
+                    province: document.getElementById("province").value,
                     taxImageBase64: taxBase64,
                     licenseImageBase64: licenseBase64
                 };
 
-                console.log("Sending to Flow:", data);
-
-                // ===== CALL FLOW =====
-                const response = await fetch(FLOW_URL, {
+                await fetch("YOUR_FLOW_URL_HERE", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(data)
                 });
 
-                // ===== RESPONSE =====
-                if (!response.ok) {
-                    throw new Error("HTTP Error: " + response.status);
-                }
+                alert("✅ บันทึกสำเร็จ");
 
-                const result = await response.text(); // Flow ส่วนใหญ่ return text
-                console.log("Flow response:", result);
-
-                // ===== SUCCESS =====
-                alert("✅ บันทึกข้อมูลเรียบร้อย");
-
-                // ✅ ปิด LIFF
-                if (liff && liff.isInClient()) {
-                    liff.closeWindow();
-                } else {
-                    window.close(); // fallback browser
-                }
-
-                // ✅ Reset form
-                document.getElementById("taxImage").value = "";
-                document.getElementById("licenseImage").value = "";
-                vehicleTypeSelect.value = "";
-                brandSelect.innerHTML = '<option value="">-- เลือกประเภทรถก่อน --</option>';
-                brandSelect.disabled = true;
-
-                modelSelect.innerHTML = '<option value="">-- เลือกยี่ห้อก่อน --</option>';
-                modelSelect.disabled = true;
-
+                if (liff.isInClient()) liff.closeWindow();
 
             } catch (err) {
+                alert("❌ Error");
                 console.error(err);
-                alert("❌ เกิดข้อผิดพลาด กรุณาลองใหม่");
             }
             finally {
+                document.body.classList.remove("loading");
                 btn.disabled = false;
                 btn.textContent = "บันทึก";
-                document.body.classList.remove("loading");
             }
         }
 
+        // ===== Init =====
         window.onload = function () {
+            populateProvinces();
             initLIFF();
-            updateStatus("inspectionDate", "inspectionStatus", "ภาษี");
-            updateStatus("licenseExpireDate", "licenseStatus", "ใบขับขี่");
-            checkImageRequired();
+            checkFormReady();
         };
-
-        // ===== Initialize =====
-        populateProvinces();
-        document.getElementById("taxImage").addEventListener("change", checkImageRequired);
-        document.getElementById("licenseImage").addEventListener("change", checkImageRequired);
-
+        
     </script>
 </body>
 
