@@ -122,6 +122,21 @@
             opacity: 0.6;
             pointer-events: none;
         }
+
+        .consent-group label.consent-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        .consent-group input[type="radio"] {
+            margin: 0;
+            transform: scale(1.2);
+            /* ขยายวงกลมให้ง่ายต่อการกด */
+        }
     </style>
 </head>
 
@@ -250,17 +265,20 @@
 
         <div class="section-title">นโยบายความเป็นส่วนตัว</div>
 
-        <div class="form-group">
-            <label>
+        <div class="form-group consent-group">
+
+            <label class="consent-item">
                 <input type="radio" name="consent" value="agree">
-                ✅ ยินยอมให้เปิดเผยข้อมูล ทะเบียนรถ / ใบขับขี่
+                <span>✅ ยินยอมให้เปิดเผยข้อมูล ทะเบียนรถ / ใบขับขี่</span>
             </label>
 
-            <label style="margin-top:5px;">
+            <label class="consent-item">
                 <input type="radio" name="consent" value="disagree">
-                ❌ ไม่ยินยอมให้เปิดเผยข้อมูล
+                <span>❌ ไม่ยินยอมให้เปิดเผยข้อมูล</span>
             </label>
+
         </div>
+
 
         <button class="btn-save" type="button" onclick="submitForm()">บันทึก</button>
 
@@ -525,7 +543,7 @@
             initLIFF();
             checkFormReady();
         };
-        
+
     </script>
 </body>
 
